@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Mapper{% endblock %}
+{% block content %}
+  <table border="1">
+    <tr>
+      <th>ID</th>
+      <th>曲名</th>
+      <th>曲の長さ</th>
+      <th>mapper</th>
+    </tr>
+    {% for map_ in object_list %}
+    <tr>
+      <td>{{ map_.id }}</td>
+      <td>{{ map_.name }}</td>
+      <td>{{ map_.display_duration }}</td>
+      <td>{{ map_.mapper.username }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

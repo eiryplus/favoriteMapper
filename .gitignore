@@ -1,0 +1,7 @@
+.idea/
+tmp/
+data/
+venv/
+*.pyc
+*.sqlite
+*.sqlite3
