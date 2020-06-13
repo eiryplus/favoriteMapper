@@ -9,5 +9,6 @@ class MapperList(ListView):
 
 class MapList(ListView):
     model = Map
+
     def get_queryset(self):
-        return Map.objects.all().select_related("mapper").order_by("mapper_id", "-uploaded")
+        return Map.objects.all().select_related("mapper").order_by("-uploaded")

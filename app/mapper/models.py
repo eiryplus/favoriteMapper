@@ -7,10 +7,16 @@ from common.models import ModelBase
 class Mapper(ModelBase):
     # 取り込みデータ
     id = models.CharField(verbose_name="Mapper ID", max_length=31, primary_key=True)
-    username = models.CharField(verbose_name="ユーザー名", max_length=255, null=True)  # 後で自動取得
-    latest_uploaded = models.DateTimeField(verbose_name="最終アップロード日", db_index=True, null=True)
+    username = models.CharField(
+        verbose_name="ユーザー名", max_length=255, null=True
+    )  # 後で自動取得
+    latest_uploaded = models.DateTimeField(
+        verbose_name="最終アップロード日", db_index=True, null=True
+    )
     # 内部処理用
-    latest_processed = models.DateTimeField(verbose_name="最終処理日", db_index=True, null=True)
+    latest_processed = models.DateTimeField(
+        verbose_name="最終処理日", db_index=True, null=True
+    )
 
     class Meta:
         db_table = "mapper"
@@ -30,10 +36,7 @@ class Map(ModelBase):
 
     @property
     def display_duration(self):
-        return "{}:{}".format(
-            int(self.duration/60),
-            int(self.duration) % 60
-        )
+        return "{}:{}".format(int(self.duration / 60), int(self.duration) % 60)
 
 
 class Difficulty(ModelBase):
