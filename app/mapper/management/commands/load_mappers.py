@@ -3,11 +3,10 @@ import os
 import time
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from django.conf import settings
 
 from mapper import consts
-from mapper.models import Mapper, Map
+from mapper.models import Mapper
 
 
 class Command(BaseCommand):
@@ -15,13 +14,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def _get_mapper(mapper_id: str) -> dict:
-        try:
-            url = consts.MAPPER_API_URL.format(mapper_id=mapper_id)
-            response = requests.get(url=url, headers=consts.headers)
-            return response.json()
-        except:
-            print(mapper_id)
-            raise Exception()
+        url = consts.MAPPER_API_URL.format(mapper_id=mapper_id)
+        response = requests.get(url=url, headers=consts.headers)
+        return response.json()
 
     @staticmethod
     def _get_mapper_ids():
@@ -31,7 +26,6 @@ class Command(BaseCommand):
         return result
 
     def handle(self, *args, **options):
-        objects = []
         mapper_ids = set(self._get_mapper_ids())
         exists_ids = set(Mapper.objects.all().values_list("id", flat=True))
         new_mappers = list(mapper_ids - exists_ids)

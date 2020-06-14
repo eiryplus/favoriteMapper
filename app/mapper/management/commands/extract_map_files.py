@@ -1,7 +1,5 @@
-import time
 from django.core.management.base import BaseCommand
 from mapper.models import Map
-from mapper import api
 
 
 class Command(BaseCommand):
