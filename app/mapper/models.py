@@ -12,8 +12,7 @@ from mapper import consts
 
 pygame.mixer.init()
 
-# https://beatsaver.com/api/users/find/5cff0b7598cc5a672c851d38
-# {"_id":"5cff0b7598cc5a672c851d38","username":"coolingcloset"}
+
 class Mapper(ModelBase):
     # 取り込みデータ
     id = models.CharField(verbose_name="Mapper ID", max_length=31, primary_key=True)
@@ -30,6 +29,11 @@ class Mapper(ModelBase):
 
     class Meta:
         db_table = "mapper"
+
+    def update_latest_uploaded(self):
+        aggregated = self.map_set.aggregate(models.Max("uploaded"))
+        self.latest_uploaded = aggregated.get("uploaded__max")
+        self.save()
 
 
 class Map(ModelBase):
@@ -98,8 +102,9 @@ class Map(ModelBase):
             os.makedirs(self.extract_path, 755, exist_ok=True)
             with zipfile.ZipFile(self.download_file_path) as fp:
                 fp.extractall(self.extract_path)
-        except zipfile.BadZipFile:
+        except zipfile.BadZipFile as e:
             os.rmdir(self.extract_path)
+            raise e
 
 
 DIFFICULTY_CHOICES = (

@@ -5,8 +5,10 @@ import os
 
 import requests
 
+from django.db import models
+
 from mapper import consts
-from mapper.models import Map, DIFFICULTY_DICT
+from mapper.models import Mapper, Map, DIFFICULTY_DICT
 
 
 def _fetch_maps(user_id: str, page: int = 0):
@@ -15,15 +17,16 @@ def _fetch_maps(user_id: str, page: int = 0):
     return response.json()
 
 
-def _fetch_all_map(mapper_id: str):
+def _fetch_all_maps(mapper_id: str):
     next_page = 0
     while next_page is not None:
         data = _fetch_maps(mapper_id, next_page)
+        next_page = data.get("nextPage")
         yield data.get("docs")
 
 
 def create_map_data(mapper_id: str):
-    for maps in _fetch_all_map(mapper_id):
+    for maps in _fetch_all_maps(mapper_id):
         time.sleep(0.9)
         for data in maps:
             s = data.get("uploaded").replace("Z", "+00:00")
@@ -39,8 +42,7 @@ def create_map_data(mapper_id: str):
                 id=data.get("key"), defaults=defaults
             )
             if not is_new:
-                # マップは登録日降順で取得できるため、取り込み済みのデータが
-                # ある場合は処理を終了する
+                # マップは登録日降順で取得できるため、取り込み済みのデータがある場合は処理を終了する
                 return
             map_.save()
 
@@ -76,3 +78,9 @@ def create_difficulty(m: Map):
     for d in difficulty_data:
         # TODO: Difficulty データを生成する
         print(d)
+
+
+def upload_latest_uploaded(mapper: Mapper):
+    aggregated = mapper.map_set.aggregate(models.Max("uploaded"))
+    mapper.latest_uploaded = aggregated.get("uploaded__max")
+    mapper.save()

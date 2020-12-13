@@ -8,14 +8,16 @@
       <th>ID</th>
       <th>曲名</th>
       <th>曲の長さ</th>
+      <th>preview</th>
     </tr>
     {% for map_ in object_list %}
     <tr>
       <td>{{ map_.uploaded|date:"Y-m-d H:i" }}</td>
-        <td><a href="https://beatsaver.com/uploader/{{ map_.mapper.id }}" target="_blank">{{ map_.mapper.username }}</a></td>
+      <td><a href="https://beatsaver.com/uploader/{{ map_.mapper.id }}" target="_blank">{{ map_.mapper.username }}</a></td>
       <td>{{ map_.id }}</td>
       <td>{{ map_.name|truncatechars:30 }}</td>
       <td>{{ map_.display_duration }}</td>
+      <td><a href="https://skystudioapps.com/bs-viewer/?id={{ map_.id }}" target="_blank">preview</a></td>
     </tr>
     {% endfor %}
   </table>

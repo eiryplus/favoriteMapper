@@ -10,6 +10,8 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options):
-        for m in Map.objects.filter(downloaded=False):
-            m.download()
-            time.sleep(1)
+        pass
+        # for m in Map.objects.filter(downloaded=False):
+        #     m.download()
+        #     time.sleep(1)
+1
