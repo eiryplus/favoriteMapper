@@ -80,9 +80,9 @@ class Map(ModelBase):
 
     @cached_property
     def music_file_duration(self):
-        sonf_file = os.path.join(self.extract_path, self.info_dat.get("_songFilename"))
-        sc = pygame.mixer.Sound(sonf_file)
-        return sc.get_length()
+        song_file = os.path.join(self.extract_path, self.info_dat.get("_songFilename"))
+        song = pygame.mixer.Sound(song_file)
+        return song.get_length()
 
     def download(self):
         if self.downloaded:
