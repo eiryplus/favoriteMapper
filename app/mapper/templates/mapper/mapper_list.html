@@ -3,13 +3,13 @@
 {% block content %}
   <table border="1">
     <tr>
-      <th>ID</th>
-      <th>name</th>
+      <th style="padding: 4px 10px;">name</th>
+      <th style="padding: 4px 10px;">latest_uploaded</th>
     </tr>
     {% for mapper in object_list %}
     <tr>
-      <td>{{ mapper.id }}</td>
-      <td>{{ mapper.username }}</td>
+      <td style="padding: 4px 10px;"><a href="https://beatsaver.com/uploader/{{ mapper.id }}" target="_blank">{{ mapper.username }}</a></td>
+      <td style="padding: 4px 10px;">{{ mapper.latest_uploaded|date:"Y-m-d H:i" }}</td>
     </tr>
     {% endfor %}
   </table>

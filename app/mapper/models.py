@@ -4,12 +4,15 @@ import requests
 import zipfile
 
 from django.db import models
+from django.utils.functional import cached_property
+import pygame
+
 from common.models import ModelBase
 from mapper import consts
 
+pygame.mixer.init()
 
-# https://beatsaver.com/api/users/find/5cff0b7598cc5a672c851d38
-# {"_id":"5cff0b7598cc5a672c851d38","username":"coolingcloset"}
+
 class Mapper(ModelBase):
     # 取り込みデータ
     id = models.CharField(verbose_name="Mapper ID", max_length=31, primary_key=True)
@@ -26,6 +29,11 @@ class Mapper(ModelBase):
 
     class Meta:
         db_table = "mapper"
+
+    def update_latest_uploaded(self):
+        aggregated = self.map_set.aggregate(models.Max("uploaded"))
+        self.latest_uploaded = aggregated.get("uploaded__max")
+        self.save()
 
 
 class Map(ModelBase):
@@ -61,6 +69,21 @@ class Map(ModelBase):
     def download_url(self):
         return consts.BASE_URL + self.origin_data.get("directDownload")
 
+    @cached_property
+    def info_dat(self):
+        info_path = os.path.join(self.extract_path, "info.dat")
+        if not os.path.isfile(info_path):
+            return
+        with open(info_path, "r", encoding="utf-8") as fp:
+            dat = json.load(fp)
+        return dat
+
+    @cached_property
+    def music_file_duration(self):
+        song_file = os.path.join(self.extract_path, self.info_dat.get("_songFilename"))
+        song = pygame.mixer.Sound(song_file)
+        return song.get_length()
+
     def download(self):
         if self.downloaded:
             return
@@ -79,15 +102,29 @@ class Map(ModelBase):
             os.makedirs(self.extract_path, 755, exist_ok=True)
             with zipfile.ZipFile(self.download_file_path) as fp:
                 fp.extractall(self.extract_path)
-        except:
+        except zipfile.BadZipFile as e:
             os.rmdir(self.extract_path)
+            raise e
+
+
+DIFFICULTY_CHOICES = (
+    (0, "Easy"),
+    (1, "Normal"),
+    (2, "Hard"),
+    (3, "Expert"),
+    (4, "ExpertPlus"),
+)
+DIFFICULTY_DICT = {t[1]: t[0] for t in DIFFICULTY_CHOICES}
 
 
 class Difficulty(ModelBase):
     map = models.ForeignKey(Map, on_delete=models.CASCADE, db_index=True)
-    level = models.IntegerField("難易度")
+    code = models.IntegerField("難易度", choices=DIFFICULTY_CHOICES)
     notes_count = models.IntegerField("ノーツ数")
-    notes_per_sec = models.FloatField("NPS", 0.0)
+    notes_per_sec = models.FloatField("NPS", default=0.0)
+    speed = models.IntegerField(verbose_name="スピード")
+    obstacles = models.IntegerField(verbose_name="壁の数")
+    bombs = models.IntegerField(verbose_name="ボムの数")
     distance_per_sec = models.FloatField("セイバーの移動距離", default=0.0)
 
     class Meta:
